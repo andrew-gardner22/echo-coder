@@ -54,9 +54,12 @@ export function ChatInterface({ onCodeGenerated }: ChatInterfaceProps) {
       // Using puter.ai for AI responses
       const response = await (window as any).puter.ai.chat(input);
       
+      // Convert response to string if it's an object
+      const responseText = typeof response === 'string' ? response : response?.message || JSON.stringify(response);
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response,
+        content: responseText,
         role: 'assistant',
         timestamp: new Date()
       };
@@ -64,7 +67,7 @@ export function ChatInterface({ onCodeGenerated }: ChatInterfaceProps) {
       setMessages(prev => [...prev, assistantMessage]);
 
       // Check if response contains code and extract it
-      const codeMatch = response.match(/```[\s\S]*?```/g);
+      const codeMatch = responseText.match(/```[\s\S]*?```/g);
       if (codeMatch && onCodeGenerated) {
         const code = codeMatch[0].replace(/```[\w]*\n?/g, '').replace(/```/g, '');
         onCodeGenerated(code);
